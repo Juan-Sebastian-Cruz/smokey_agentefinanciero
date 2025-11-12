@@ -115,6 +115,8 @@ Este proyecto demuestra mi habilidad para:
 
 **Cronos** es un asistente de productividad y planificación personal de élite que he creado para ayudar a los usuarios a optimizar su tiempo y equilibrar sus múltiples responsabilidades.
 
+**[🔗 Ver código de automatización (Workflow n8n) en GitHub](https://github.com/Juan-Sebastian-Cruz/smokey_agentefinanciero/blob/main/cronos)**
+
 ## 🎯 Propósito y Funcionalidad
 
 La especialidad de Cronos es la gestión del tiempo y la optimización de calendarios.
@@ -145,4 +147,4 @@ Este proyecto subraya mi experiencia en:
 
 ## 📞 Conecta Conmigo
 
-Estoy siempre abierto a nuevas colaboraciones, proyectos desafiantes y discusiones sobre cómo la IA y la automatización pueden seguir modelando nuestro futuro. ¡No dudes en contactarme!
+Estoy siempre abierto a nuevas colaboraciones, proyectos desafiantes y discusiones sobre cómo la IA y la automatización pueden seguir modelando nuestro futuro. ¡No dudes en contactarme!```
