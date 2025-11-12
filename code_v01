@@ -1,0 +1,2085 @@
+{
+  "name": "Agente finanzas - Mati Paez",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a899241c-fef3-4f3f-8c48-7382c0c0045a",
+                    "leftValue": "={{ $json.message?.audio !== undefined || $json.message?.voice !== undefined }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.photo[2].file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "0390d2d3-c7ee-4ebd-a985-1d185214be7a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "photo"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "010c5652-92e3-4af1-9531-d6ab79eba3b2",
+                    "leftValue": "={{ $json.message.document.file_name }}",
+                    "rightValue": "xlsx",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "xlsx"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1da5b9e7-0827-4fbb-9dd5-35d607bfac2e",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -448,
+        0
+      ],
+      "id": "797f335a-7f6f-40fe-90a3-1a887aad8c91",
+      "name": "Switch3"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "91e7df13-fc12-42b8-b048-46bc0c270c63",
+      "name": "Get Voice File1",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        48,
+        -352
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "4ff467c6-3c8c-42f8-991f-d6e3ecba5e0c",
+      "credentials": {
+        "telegramApi": {
+          "id": "PaFZg5NcXqhyqggt",
+          "name": "Snaffu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -352
+      ],
+      "id": "d1c9fdc8-73a0-4d69-b193-875274b33735",
+      "name": "Transcribe a recording1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "h1cmUEdQwoTO3K95",
+          "name": "Google Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        800,
+        -176
+      ],
+      "id": "d5d69b6c-72e5-4558-90e8-11abe86da510",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6933075c-d3c7-483a-8c09-dfb9e7ad4e7b",
+              "name": "text",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        432,
+        -352
+      ],
+      "id": "60b15f25-1e69-43f0-93f6-830f837fdf5b",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM smokey_chat_histories\nWHERE id = (\n  SELECT id\n  FROM smokey_chat_histories\n  WHERE session_id = 'mati_6613130032'\n  ORDER BY id DESC\n  LIMIT 1\n);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -368,
+        736
+      ],
+      "id": "b19b060a-18d4-45cd-b4bf-291d4ec48147",
+      "name": "PostgreSQL_GET_Historial",
+      "credentials": {
+        "postgres": {
+          "id": "6Va1rEX2B31KIrdA",
+          "name": "Postgress - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT json_agg(sub.message ORDER BY sub.id) AS messages\nFROM (\n  SELECT id, message\n  FROM smokey_chat_histories\n  WHERE session_id = 'mati_6613130032'\n  ORDER BY id DESC\n  LIMIT 12\n) sub;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -368,
+        528
+      ],
+      "id": "0d5f0239-8582-449d-a56f-42545059323b",
+      "name": "PostgreSQL_GET_Historial3",
+      "credentials": {
+        "postgres": {
+          "id": "6Va1rEX2B31KIrdA",
+          "name": "Postgress - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        48,
+        48
+      ],
+      "id": "54207955-a9c9-408b-95c6-06779892a5e5",
+      "name": "Wait",
+      "webhookId": "a51655f7-4574-43dc-9fae-bf93343d35b0"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "complete_message",
+        "key": "=buffer_{{ $('Snaffu1').item.json.message.chat.id }}",
+        "keyType": "=automatic",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        192,
+        224
+      ],
+      "id": "2a810039-7fd3-4c27-907b-359634773eac",
+      "name": "redis get message",
+      "credentials": {
+        "redis": {
+          "id": "8UxNwIcndf2W6rvc",
+          "name": "redis - Mati"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "=buffer_{{ $('Snaffu1').item.json.message.chat.id }}",
+        "messageData": "={{ $json.text }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        224
+      ],
+      "id": "8a89fa80-e42f-40ac-8fd8-84efd800de3d",
+      "name": "redis push message",
+      "credentials": {
+        "redis": {
+          "id": "8UxNwIcndf2W6rvc",
+          "name": "redis - Mati"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "47be865f-ae88-4a0e-99e3-8eda7e0e9735",
+              "leftValue": "={{ $json.complete_message.last()}}",
+              "rightValue": "={{ $('Edit Fields4').item.json.text }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        320,
+        48
+      ],
+      "id": "188c4f84-7384-44de-927f-ad376e3ee2ef",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2653a19a-9d49-4c32-877f-48c7dfe1c855",
+              "name": "text",
+              "value": "={{ $('redis get message').item.json.complete_message.join(' ')}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        224
+      ],
+      "id": "a9f9e092-5e80-4b1a-873b-f2e5ed676801",
+      "name": "Concatenar1"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "=buffer_{{ $('Snaffu1').item.json.message.chat.id }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        624,
+        48
+      ],
+      "id": "4eaf423b-6d71-4fd5-9784-c48a3f4de926",
+      "name": "Redis vaciar1",
+      "credentials": {
+        "redis": {
+          "id": "8UxNwIcndf2W6rvc",
+          "name": "redis - Mati"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1e93294-9985-4e66-965c-05486e4c56db",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        80
+      ],
+      "id": "a2762537-85ee-4aa2-8bfa-8be83b1a6bb2",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "content": "## Formatear postgress",
+        "height": 496,
+        "width": 896,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -736,
+        432
+      ],
+      "id": "5ba53645-4fc3-44f7-8485-601fa475b816",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT json_agg(sub.message ORDER BY sub.id) AS messages\nFROM (\n  SELECT id, message\n  FROM mati_chat_histories\n  WHERE session_id = 'mati_{{ $('ultimo_filtro1').item.json.chat.id }}'\n  ORDER BY id DESC\n  LIMIT 20\n) sub;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1072,
+        96
+      ],
+      "id": "9ec75e62-5a4c-4e16-bf52-f2868808e851",
+      "name": "Execute a SQL query2",
+      "credentials": {
+        "postgres": {
+          "id": "wxZ60SNTDEvG1N7t",
+          "name": "Mati - chat history"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const arr = items?.[0]?.json?.messages || items?.[0]?.messages || [];\n\nconst historial = Array.isArray(arr)\n  ? arr.map(m => {\n      const role = m.type === 'human' ? 'user' : 'assistant';\n      let content = m.content;\n\n      if (role === 'assistant' && typeof content === 'string') {\n        // Detectar si está en bloque de código con JSON\n        if (content.startsWith('```json')) {\n          try {\n            const clean = content.replace(/```json|```/g, '').trim();\n            const parsed = JSON.parse(clean);\n            if (parsed.respuesta) {\n              content = parsed.respuesta;\n            } else {\n              content = clean;\n            }\n          } catch {\n            content = content.replace(/```/g, '').trim();\n          }\n        }\n      }\n\n      return `${role}: ${content}`;\n    })\n  : [];\n\nreturn [{ historial }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        96
+      ],
+      "id": "8087e462-b33b-4f48-9a27-28b68d9b65bd",
+      "name": "historial_ordenado1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recorre cada item del input\nconst results = [];\n\nfor (const item of items) {\n  let data = item.json;\n\n  // Si tiene una propiedad `output` que es un string\n  if (typeof data.output === 'string') {\n    let raw = data.output;\n\n    // Elimina los delimitadores ```json ... ```\n    raw = raw.replace(/```json\\s*|\\s*```/g, '');\n\n    try {\n      const parsed = JSON.parse(raw);\n      results.push({ json: parsed });\n    } catch (err) {\n      // Si no se puede parsear, pasa el string original con un warning\n      results.push({ json: { error: 'No se pudo parsear el output como JSON', raw: data.output } });\n    }\n\n  } else {\n    // Si ya es un JSON válido normal, lo pasa directo\n    results.push({ json: data });\n  }\n}\n\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        528
+      ],
+      "id": "dbf84df2-2f28-452f-a3b0-2e6dd4d19332",
+      "name": "Arreglar_Json"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8d61fcb2-3217-4856-aa92-bd3ecd94dd6c",
+              "name": "text",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            },
+            {
+              "id": "d29964f0-6528-4556-ae16-c6238ef95354",
+              "name": "chat.id",
+              "value": "={{ $('Snaffu1').item.json.message.chat.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1360,
+        -144
+      ],
+      "id": "a546b8bc-801a-4c6b-94bf-d2dd9e1f2c9d",
+      "name": "ultimo_filtro1"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=info_usuario_{{ $json.chat.id }}",
+        "value": "={{ \n  JSON.stringify({\nultimos_mensajes_usuario: $('ultimo_filtro1').item.json.text,\n    ultimo_filtro: $('ultimo_filtro1').item.json\n  }) \n}}\n"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        -144
+      ],
+      "id": "6ddef0f3-3680-48c5-838e-d762630b8925",
+      "name": "info_usuario1",
+      "credentials": {
+        "redis": {
+          "id": "8UxNwIcndf2W6rvc",
+          "name": "redis - Mati"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=chat_id: {{ $('ultimo_filtro1').item.json.chat.id }}\nmensaje entrante: {{ $('ultimo_filtro1').item.json.text }}",
+        "options": {
+          "systemMessage": "=Eres el Agente Administrador de Adamain, un director de orquesta conversacional. Tu función es analizar la conversación de un cliente y enrutarla a la categoría correcta.\n\n#### Contexto\n- **Servicio:** Adamain, un asistente personal.\n- **Usuario Humano:** Matías Paez\n- **Categorías de trabajo:** Te pueden responder con el nombre de la categoría.\n1. Gestionar finanzas personales\\n\n\n- **Información de Entrada:** Tendrás dos entradas de información del usuario. La primera es el mensaje de texto desde telegram más reciente y el historial de conversación.\nSegunda entrada será un mensaje automático desde la apple wallet del usuario sobre una nueva transacción \n\n#### Tarea Principal\n1.  **Analiza el mensaje entrante y el historial de la conversación.**\n2.  **Determina la intención principal del usuario.**\n    - Si el tema es sobre gestión de finanzas personales, determinar si el mensaje corresponde a una \"consulta\" (pedir información, reportes, análisis, gráficos, resúmenes) o a un \"registro\" (registrar ingresos, egresos, deudas, presupuestos, modificaciones de datos).\nej:{\n    \"chat id\": \"mati_6170987826\",\n    \"categoría\": \"consulta o registro\"\n}\n\n  "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        96
+      ],
+      "id": "a3fbd505-9a0d-4ca0-8e20-aaf62199efcf",
+      "name": "Adamain - Administrador1"
+    },
+    {
+      "parameters": {
+        "content": "## Input\n",
+        "height": 816,
+        "width": 2720,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -736,
+        -384
+      ],
+      "typeVersion": 1,
+      "id": "62c6343b-d2a3-41a8-9dfa-0c8063cabd0d",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Apple wallet",
+        "height": 496,
+        "width": 816,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "3c71ae47-2cde-453f-b8f7-82ba48794e4a",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Nodo Code en n8n\n// Input: un item desde el webhook con el cuerpo en items[0].json.body\n// Output: texto plano concatenado + id predeterminado + fecha actual (dd-mm-yyyy)\n\nconst body = items[0].json.body;\n\n// 2. Creamos el mensaje base\nlet text = \"Nuevo gasto registrado\\n\\n\";\n\n// 4. Recorremos los campos del body y los agregamos al texto\nfor (const [key, value] of Object.entries(body)) {\n  text += `${key}: ${value}\\n`;\n}\n\n// 5. Creamos el objeto final con el texto, el id fijo y la nueva categoría 'date'\nreturn [\n  {\n    json: {\n      id: 6170987826,\n      text: text.trim()\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        640
+      ],
+      "id": "2d258d11-5f84-423e-b979-f7f74de34ec1",
+      "name": "NuevaTransacción1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ (() => {\n  try { return $('Snaffu1').item.json.message.chat.id; } catch(e) {}\n  try { return $('NuevaTransacción1').item.json.id; } catch(e) {}\n  return null;\n})() }}\n",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "5c9a0a81-fa81-4e45-81a8-a545a42a3a24"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1072,
+        -144
+      ],
+      "id": "6c4702ca-ff5f-468c-9cd6-15ed1f4a5d3d",
+      "name": "Switch4"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={{ $json.info_mensajes }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1696,
+        528
+      ],
+      "id": "f4721e25-fa56-4fa2-9688-3157ebcb892e",
+      "name": "datos_recuperados1"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "info_mensajes",
+        "key": "=info_usuario_{{ $('Snaffu1').item.json.message.chat.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        528
+      ],
+      "id": "4d623b2d-35e0-484b-b7bd-63d5cd1006f3",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "8UxNwIcndf2W6rvc",
+          "name": "redis - Mati"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const arr = items?.[0]?.json?.messages || items?.[0]?.messages || [];\n\nconst historial = Array.isArray(arr)\n  ? arr.map(m => {\n      const role = m.type === 'human' ? 'user' : 'assistant';\n      let content = m.content;\n\n      if (role === 'assistant' && typeof content === 'string') {\n        // Detectar si está en bloque de código con JSON\n        if (content.startsWith('```json')) {\n          try {\n            const clean = content.replace(/```json|```/g, '').trim();\n            const parsed = JSON.parse(clean);\n            if (parsed.respuesta) {\n              content = parsed.respuesta;\n            } else {\n              content = clean;\n            }\n          } catch {\n            content = content.replace(/```/g, '').trim();\n          }\n        }\n      }\n\n      return `${role}: ${content}`;\n    })\n  : [];\n\nreturn [{ historial }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        768
+      ],
+      "id": "1a8fa056-ea4e-4612-8664-22ae8b291337",
+      "name": "Historial_ordenado1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Arreglar_Json').item.json['categoría'] }}",
+                    "rightValue": "consulta",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d8bf9b69-ab2e-45fa-bac1-f195c9e67256"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "consulta"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cd4d4a00-4639-46c5-93d9-c1d9d7132e24",
+                    "leftValue": "={{ $('Arreglar_Json').item.json['categoría'] }}",
+                    "rightValue": "registro",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "registro"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "ee492708-0026-48e8-9b07-b8543bb413e5",
+                    "leftValue": "={{ $('Arreglar_Json').item.json['categoría'] }}",
+                    "rightValue": "error",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "error"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1696,
+        960
+      ],
+      "id": "81bbeb48-4119-466b-b289-f6adb4dbf8e3",
+      "name": "Switch5"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT json_agg(sub.message ORDER BY sub.id) AS messages\nFROM (\n  SELECT id, message\n  FROM mati_chat_histories\n  WHERE session_id = 'mati_{{ $('ultimo_filtro1').item.json.chat.id }}'\n  ORDER BY id DESC\n  LIMIT 20\n) sub;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1168,
+        768
+      ],
+      "id": "54854c08-e562-46f1-9541-1a7a06f1cbf8",
+      "name": "Execute a SQL query3",
+      "credentials": {
+        "postgres": {
+          "id": "wxZ60SNTDEvG1N7t",
+          "name": "Mati - chat history"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Accede al input del nodo.\nconst inputData = $json;\n\n// Obtén el texto que contiene Markdown. Ajusta 'output' si tu propiedad se llama diferente.\nlet textWithMarkdown = inputData.output; // <-- Asegúrate de que 'output' sea la clave correcta donde está el texto\n\n// Función para eliminar el Markdown\nfunction removeMarkdown(markdownText) {\n  if (typeof markdownText !== 'string') {\n    return markdownText;\n  }\n\n  // 1. Eliminar negritas y cursivas\n  markdownText = markdownText.replace(/\\*\\*([^\\*]+)\\*\\*/g, '$1');\n  markdownText = markdownText.replace(/__([^_]+)__/g, '$1');\n  markdownText = markdownText.replace(/\\*([^*]+)\\*/g, '$1');\n  markdownText = markdownText.replace(/_([^_]+)_/g, '$1');\n\n  // 2. Eliminar encabezados\n  markdownText = markdownText.replace(/^#+\\s*(.*)$/gm, '$1');\n\n  // 3. Eliminar marcadores de listas\n  markdownText = markdownText.replace(/^\\s*\\d+\\.\\s*/gm, '');\n  markdownText = markdownText.replace(/^\\s*[\\*\\-]\\s*/gm, '');\n\n  // 4. Eliminar enlaces, manteniendo solo el texto del enlace\n  markdownText = markdownText.replace(/\\[(.*?)\\]\\([^)]*\\)/g, '$1');\n\n  // 5. Eliminar código en línea\n  markdownText = markdownText.replace(/`([^`]+)`/g, '$1');\n\n  // 6. Eliminar citas en bloque\n  markdownText = markdownText.replace(/^>\\s*/gm, '');\n\n  // 7. Eliminar líneas horizontales\n  markdownText = markdownText.replace(/^[*-]{3,}\\s*$/gm, '');\n\n  // NUEVA LÍNEA: Escapar cualquier asterisco restante para que no cause errores en MarkdownV2\n  markdownText = markdownText.replace(/\\*/g, ''); // ESTA ES LA LÍNEA A AÑADIR\n\n  return markdownText.trim();\n}\n\nconst cleanedText = removeMarkdown(textWithMarkdown);\n\n// El nodo Code en n8n debe retornar un array de objetos,\n// donde cada objeto tiene una propiedad 'json' que es, a su vez, un OBJETO.\n// Aquí, colocamos el texto plano dentro de una nueva propiedad llamada 'plainTextOutput'.\nreturn [\n  {\n    json: {\n      plainTextOutput: cleanedText\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        352,
+        1008
+      ],
+      "id": "d413ab67-2d5b-4980-a434-83fd344d39eb",
+      "name": "Formatear para Telegram1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "noti_iphone_mati",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        352,
+        640
+      ],
+      "id": "293b7756-628e-4c33-abae-6000fff79339",
+      "name": "Webhook1",
+      "webhookId": "5880e193-9a50-49ef-9cbf-a2588d373545"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        1584
+      ],
+      "id": "ca64884e-7002-4e5f-a13b-20b23ffd7790",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "h1cmUEdQwoTO3K95",
+          "name": "Google Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=mati_{{ $('Snaffu1').item.json.message.chat.id }}",
+        "tableName": "smokey_chat_histories",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1232,
+        1584
+      ],
+      "id": "f9286cbc-e936-40fd-9574-7b9ef32965c3",
+      "name": "Postgres Chat Memory2",
+      "credentials": {
+        "postgres": {
+          "id": "wxZ60SNTDEvG1N7t",
+          "name": "Mati - chat history"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Multiagentes ",
+        "height": 1312,
+        "width": 1008,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        976,
+        432
+      ],
+      "typeVersion": 1,
+      "id": "8d379b5f-201b-4e30-a593-c9223d4b2c0b",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Snaffu1').item.json.message.chat.id }}",
+        "text": "={{ $json.plainTextOutput }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        688,
+        1008
+      ],
+      "id": "3502cf40-d594-4364-8190-653b8bbaad8f",
+      "name": "Send a text message1",
+      "webhookId": "466c20b1-c744-4664-a25b-b885fc4b958f",
+      "credentials": {
+        "telegramApi": {
+          "id": "PaFZg5NcXqhyqggt",
+          "name": "Snaffu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0fa6f762-1a98-4646-a125-28bcb641f258",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        1440
+      ],
+      "id": "5b9e083e-bea2-421d-8c6c-1a7414649702",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "content": "## Gestión de errores",
+        "height": 816,
+        "width": 816
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        928
+      ],
+      "typeVersion": 1,
+      "id": "86edb112-e587-456f-889f-f79702952a0a",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=mati_{{ $('Snaffu1').item.json.message.chat.id }}",
+        "tableName": "smokey_chat_histories",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1664,
+        304
+      ],
+      "id": "71f70d33-25b1-4381-8d27-decf90e30fe3",
+      "name": "Postgres Chat Memory3",
+      "credentials": {
+        "postgres": {
+          "id": "6Va1rEX2B31KIrdA",
+          "name": "Postgress - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1AZKAhitw-cnk-4T29v_G-r8lVV-oci3BpS7u0b_eXJs/edit?gid=1890731704#gid=1890731704",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 8067574,
+          "mode": "list",
+          "cachedResultName": "Egresos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AZKAhitw-cnk-4T29v_G-r8lVV-oci3BpS7u0b_eXJs/edit#gid=8067574"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Detalle": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Detalle', ``, 'string') }}",
+            "Monto gastado": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Monto_gastado', ``, 'string') }}",
+            "Categoría": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Categor_a', ``, 'string') }}",
+            "Cuenta bancaria": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Cuenta_bancaria', ``, 'string') }}",
+            "Fecha": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Fecha', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Detalle",
+              "displayName": "Detalle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Monto gastado",
+              "displayName": "Monto gastado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría",
+              "displayName": "Categoría",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cuenta bancaria",
+              "displayName": "Cuenta bancaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1712,
+        1424
+      ],
+      "id": "d5e41061-1a2e-45bc-91c3-50ee12f31a69",
+      "name": "Registro Egresos",
+      "credentials": {
+        "googleApi": {
+          "id": "ZCLqomFWW4TBKUyj",
+          "name": "Mati paez"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1kzAm1ODVXMJL6HZDrFaTnIG2HdbcRiet2rbGrCPbb3s/edit?gid=1786625176#gid=1786625176",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 105634345,
+          "mode": "list",
+          "cachedResultName": "Pago de deudas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kzAm1ODVXMJL6HZDrFaTnIG2HdbcRiet2rbGrCPbb3s/edit#gid=105634345"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Monto": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Monto', ``, 'string') }}",
+            "Fecha": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Fecha', ``, 'string') }}",
+            "Deuda": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Deuda', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Monto",
+              "displayName": "Monto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Deuda",
+              "displayName": "Deuda",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1856,
+        1424
+      ],
+      "id": "f74d80ae-4aab-4328-be0e-f2b482e6dda9",
+      "name": "Pagar deudas",
+      "credentials": {
+        "googleApi": {
+          "id": "ZCLqomFWW4TBKUyj",
+          "name": "Mati paez"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1AZKAhitw-cnk-4T29v_G-r8lVV-oci3BpS7u0b_eXJs/edit?gid=1890731704#gid=1890731704",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sheet', ``, 'string') }}",
+          "mode": "name",
+          "cachedResultName": "",
+          "cachedResultUrl": ""
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        1424
+      ],
+      "id": "c5be8696-f6dc-4185-b9da-b06ccd39834b",
+      "name": "Consultar finanzas",
+      "credentials": {
+        "googleApi": {
+          "id": "ZCLqomFWW4TBKUyj",
+          "name": "Mati paez"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1AZKAhitw-cnk-4T29v_G-r8lVV-oci3BpS7u0b_eXJs/edit?gid=1890731704#gid=1890731704",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1967825976,
+          "mode": "list",
+          "cachedResultName": "Ingresos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1AZKAhitw-cnk-4T29v_G-r8lVV-oci3BpS7u0b_eXJs/edit#gid=1967825976"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fuente de ingreso": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Fuente_de_ingreso', ``, 'string') }}",
+            "Monto": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Monto', ``, 'string') }}",
+            "Cuenta bancaria": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Cuenta_bancaria', ``, 'string') }}",
+            "Fecha": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Fecha', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fuente de ingreso",
+              "displayName": "Fuente de ingreso",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Monto",
+              "displayName": "Monto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cuenta bancaria",
+              "displayName": "Cuenta bancaria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        1584
+      ],
+      "id": "9d317c34-3092-4d42-9894-3183125ce26d",
+      "name": "Registro Ingresos",
+      "credentials": {
+        "googleApi": {
+          "id": "ZCLqomFWW4TBKUyj",
+          "name": "Mati paez"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1kzAm1ODVXMJL6HZDrFaTnIG2HdbcRiet2rbGrCPbb3s/edit?gid=1786625176#gid=1786625176",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 197486809,
+          "mode": "list",
+          "cachedResultName": "Emisión de deudas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kzAm1ODVXMJL6HZDrFaTnIG2HdbcRiet2rbGrCPbb3s/edit#gid=197486809"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Detalle": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Detalle', ``, 'string') }}",
+            "Cuotas": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Cuotas', ``, 'string') }}",
+            "Monto total": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Monto_total', ``, 'string') }}",
+            "Interés mensual": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Inter_s_mensual', ``, 'string') }}",
+            "Deuda": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Deuda', ``, 'string') }}",
+            "Fecha": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Fecha', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Detalle",
+              "displayName": "Detalle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cuotas",
+              "displayName": "Cuotas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Monto total",
+              "displayName": "Monto total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Monto mensual",
+              "displayName": "Monto mensual",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Interés mensual",
+              "displayName": "Interés mensual",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Deuda",
+              "displayName": "Deuda",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Primera fecha de pago",
+              "displayName": "Primera fecha de pago",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Última fecha de pago",
+              "displayName": "Última fecha de pago",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1712,
+        1584
+      ],
+      "id": "b104cad7-a3c1-4f5e-a37a-ad6b1e78a6bd",
+      "name": "Emitir deuda",
+      "credentials": {
+        "googleApi": {
+          "id": "ZCLqomFWW4TBKUyj",
+          "name": "Mati paez"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1AZKAhitw-cnk-4T29v_G-r8lVV-oci3BpS7u0b_eXJs/edit?gid=1890731704#gid=1890731704",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Sheet', ``, 'string') }}",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1856,
+        1584
+      ],
+      "id": "9272232b-58fb-482a-9d2b-285ca3933040",
+      "name": "Actualizar",
+      "credentials": {
+        "googleApi": {
+          "id": "ZCLqomFWW4TBKUyj",
+          "name": "Mati paez"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentURL": "https://docs.google.com/document/d/1wNO2mkKbcHienpjZKEveKNFN6z_z3CHA31bKS5RlP7g/edit?tab=t.0",
+        "simple": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify', ``, 'boolean') }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('actionFields0_Text', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        1408,
+        1584
+      ],
+      "id": "132919f3-3fb8-4592-927b-f10a81ca3814",
+      "name": "Guardar memoria",
+      "credentials": {
+        "googleApi": {
+          "id": "ZCLqomFWW4TBKUyj",
+          "name": "Mati paez"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "get",
+        "documentURL": "https://docs.google.com/document/d/1wNO2mkKbcHienpjZKEveKNFN6z_z3CHA31bKS5RlP7g/edit?tab=t.0"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        976
+      ],
+      "id": "dd4da9d8-e7b6-4867-a6d0-78f11d65194e",
+      "name": "Get LM document",
+      "credentials": {
+        "googleApi": {
+          "id": "ZCLqomFWW4TBKUyj",
+          "name": "Mati paez"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('datos_recuperados1').item.json.ultimos_mensajes_usuario }}",
+        "options": {
+          "systemMessage": "=I. ROL DEL AGENTE\n\nEres Consultor Smokey, un consultor experto en finanzas personales de alta precisión. Estás especializado en el contexto chileno (usando el indicador CAE - Costo Anual Equivalente) y con profundo conocimiento en la teoría moderna de gestión financiera (Diversificación de Ingresos, Uso Estratégico del Crédito, Planificación Financiera y Gestión de Gastos).\n\nII. CONTEXTO DEL USUARIO\n\nUsuario: Matías.\n\nPerfil: Odontólogo con conocimientos basicos de finanzas.\n\nRestricción de Lenguaje: Tu lenguaje debe ser claro, didáctico y no técnico. El foco es la practicidad, la precisión y la comunicación de datos en formato CLP: $XX.XXX.\n\n\nIII. OBJETIVOS Y RAZONAMIENTO\nA. Objetivos Principales\n\nAnalisis Integral y Estructurado: Analizar las bases de datos transaccionales, identificar patrones de gasto, tendencias de ingreso y comprender la situación financiera interna del usuario.\n\nInteracción Dinámica y Respuesta Precisa: Responder a cualquier consulta mediante interacción directa, aplicando el protocolo de análisis rigurosamente.\n\nMemoria de Largo Plazo (Logging): Elaborar y guardar informes internos de comportamiento y tendencias financieras OBLIGATORIAMENTE después de cualquier análisis profundo o resumen.\n\nB. Reglas de Razonamiento (Críticas)\n\nPrecisión Absoluta: Nunca inventes información o datos financieros. Todos los datos DEBEN provenir de la herramienta Consultar finanzas.\n\nEnfoque Accionable: El análisis debe enfocarse en métricas clave (Net Worth, Ratio de Ahorro, Debt-to-Income Ratio, etc.) para entregar siempre una recomendación accionable, **especialmente en el gasto en Entretenimiento y la liquidez semanal/mensual para responder a sus preguntas frecuentes.**\n\nMáximo Rendimiento: Aplica estrictamente los protocolos de análisis y las reglas inquebrantables.\n\nIV. ARQUITECTURA Y HERRAMIENTAS DISPONIBLES\n\nOperas dentro de un sistema (n8n) y tienes acceso a las siguientes herramientas:\n\nHerramienta 1: Consultar Finanzas\nAcción: Lee y devuelve todas las filas de las hojas Ingresos y Egresos.\nUso: Obten datos crudos antes de cualquier análisis.\nRecomendación: En la hoja \"Resumen\" tienes un resumen del mes actual donde tienes acceso a diversos gráficos y tablas. Úsalos cuando detectes que la solicitud lo pide.\n- Ingresos\n- Egresos\n- Tabla \"Últimos Movimientos\"\n- Tabla de \"Gastos por cuenta\"\n- Tabla de \"Gastos por categoría\" con porcentaje respecto al presupuesto\n- Gráfico de balance Ingreso vs Egresos\n- Gráfico presupuesto utilizado vs planificado\n- Tabla de \"Deudas por tarjeta\"\n- Tabla de \"Presupuesto\"\n- Gastos por mes últimos 3 meses\n\nHerramienta 2: Leer memoria\nAcción: Lee y analiza el documento de memoria a largo plazo. Aquí hay información útil sobre el usuario, de sus comportamientos financieros, tendencias, patrones de gasto, etc. \nUso: Comprender lo máximo posible al usuario para personalizar al máximo tu servicio.\n\nHerramienta 3: Guardar memoria\nAcción: Actualiza el documento, modificando su contenido según sea necesario.\nUso: Mantener tu memoria a largo plazo sobre el usuario bien actualizada.\n\nPROTOCOLO DE FORMATO DE DATOS (REGLAS INQUEBRANTABLES)\n\nPara garantizar la veracidad de los datos deberás de seguir las siguientes reglas acerca del tipo de datos que vas a consultar.\n\nCategorías válidas:\nVivienda \nAlimentación \nTransporte \nEntretenimiento/Ocio\nPersonal\nDeudas\nAhorro/Inversión\n\nCuentas bancarias válidas:\nTarjeta Débito Santander\nTarjeta Débito Banco de Chile \nTarjeta Crédito Banco de Chile\nEfectivo\nPaypal\n\nFuentes de ingreso válidas:\nSalario\nFreelance\n\nDeudas válidas:\nTarjeta de Crédito Banco de Chile\nCae\n\nV. FUNCIONALIDADES Y CADENAS DE PENSAMIENTO\n\nPaso 0: Este paso lo debes ejecutar siempre antes de ejecutar cualquier otra funcionalidad y el objetivo es ubicarte en el tiempo actual. Procede a ejecutar el siguiente protocolo:\nPaso 0.1: Ejecuta el código para ubicarte en tiempo actual\n{{ $today.format('dd/LL/yyyy') }}\nPaso 0.2: Ejecuta el siguiente código:\n{{ $('Get LM document').item.json.content }}\n\nEste será que será uno de tus inputs y contiene información del usuario. Analiza el documento para refrescar tu memoria sobre el usuario.\n\nPaso 0.3: Carga un Input adicional requerido correspondiente a la historial de chat para mantenerte actualizado en el flujo de la conversación:\n\nHistorial Previo: \n\n\nFuncionalidad 1: Consulta y análisis de datos\n\nCuando el usuario pida un resumen, análisis o simplemente alguna información de la base de datos, sigue esta secuencia de pasos sin excepción:\n\nPaso 1: Intención y Periodo. Identifica si el usuario quiere un análisis o alguna información concreta. Determina el periodo de tiempo (si no lo especifica, asume el mes calendario actual). \n\nPaso 2: Ejecutar Herramienta de Consulta. Llama a la herramienta Consultar Finanzas para obtener todos los datos de las hojas. Deberás decidir de cual hoja extraer la información. \nEjemplo 1: Si el usuario solicita un reporte o resumen financiero, debes extraer información de las hojas Ingresos, Egresos, Gestión de deudas y Presupuesto.\nEjemplo 2: Si el usuario te solicita una información específica, accede solamente a la hoja donde se encuentre dicha información.\n\nEJEMPLOS DE CONSULTAS: \n\n1. ¿Cuánto porcentaje de mis ingresos gasto en Entrenimiento? \nAcceder a hoja de ingresos\n2. ¿Cuánto dinero necesito para esta semana?\nAcceder a hoja de presupuesto\n3. ¿Cuánto es lo máximo que puedo ahorrar/invertir este mes?\nAcceder a ingresos, egresos, presupuesto y hacer un analisis mas complejo\n5. ¿Que monto me recomendarías ahorrar este mes?\nAcceder a varias hojas y realizar analisis mas complejo.\n6. ¿Cuánto presupuesto tengo disponible para esta semana?\nAcceder a hoja de presupuesto\n7. ¿Cuál es el monto de la cuota a pagar de la tarjeta?\nAcceder a hoja de deudas\n\nPaso 3: Pre-procesamiento de Datos (Crítico para la Precisión). Antes de hacer cualquier cálculo, realiza las siguientes transformaciones sobre los datos que recibiste:\n\nFiltrar por Fecha: Descarta todas las filas que no pertenezcan al periodo solicitado.\n\nLimpiar Montos: Convierte todos los valores de las columnas Monto y Monto gastado de su formato de texto (ej: $127.000) a un formato numérico (ej: 127000) para poder sumarlos correctamente. Elimina el símbolo $ y los puntos .\n\nPaso 4: Utiliza el Protocolo de Análisis para responder las consultas del usuario teniendo en cuenta los antecedentes anteriores.\n\nPaso 5: Complementar análisis con memoria a largo plazo. Sigue este protocolo\nAcción: Lee y analiza el informe de comportamiento de usuario que recibiste como input extra en el paso 0.2. \nObjetivo: Complementar el análisis financiero con la información del usuario (patrones, tendencias, comportamiento, etc)\n\nPaso 6: Desarrollar Presentación y Recomendación siguiendo Instructivo de Referencia o Plantilla de Resumen Mensual dependiendo del caso.\n\nComunica los resultador de forma clara.\n\nInterpreta los datos. Traduce los números en conclusiones valiosas. (Ej: \"He notado que tus gastos en 'Gas' suman $XX.XXX, representando un 30% de tus egresos totales este mes.\")\n\nOfrece una recomendación accionable. (Ej: \"Tu flujo de caja es positivo, ¡felicidades! Para optimizarlo, podrías revisar tus 'Suscripciones', que suman $X cantidad y son gastos recurrentes.\")\n\nFinaliza de forma proactiva, ofreciendo un análisis más profundo si el usuario lo desea.\nIntención y Periodo: Identifica la solicitud y determina el periodo (asume mes calendario actual si no se especifica).\n\nPROTOCOLO DE ANÁLISIS\n\n1. Identificar intención y periodo. Si no se especifica periodo, usar el mes calendario actual.\n2. Consultar datos con las herramientas (usar Resumen siempre que la consulta sea sobre el mes actual).\n3. Preprocesar datos: \n   - Convertir montos a números.\n   - Filtrar por periodo.\n4. Calcular y presentar métricas:\n   - Total ingresos.\n   - Total egresos.\n   - Flujo de caja neto.\n   - Desglose de gastos por categoría (%).\n   - Comparaciones con periodos anteriores si se solicita.\n\n\nINSTRUCTIVO DE REFERENCIA\n\nAl generar reportes o recomendaciones debes apoyarte en los siguientes conceptos modernos:\n\nMétricas Clave\n\n1- Net Worth = Ingresos – Gastos. \n  \n  Origen de datos: Hojas Ingresos y Egresos.\n\nRatio de Ahorro: % de ingresos destinados a ahorro.\n  Origen de datos: Hojas Ingresos y Egresos.\n\nDebt-to-Income Ratio (DTI): % de ingresos que van al pago de deudas. \n  Origen de datos: Hojas Ingresos, Egresos y Registro de deudas.\n\nEmergency Fund Ratio: meses de gastos cubiertos con ahorros.\n\nHousing Ratio: ideal <28% del ingreso en vivienda.\n\nComparaciones y Tendencias\n\nEvalúa ingresos, egresos y ahorros mes a mes o año a año.\n\nAnaliza proporciones (%) de gasto por categoría.\n\nEvolución del flujo de caja neto.\n\nComparativo ahorro real vs meta.\n\nComparativo de gasto actual vs presupuestado.\n\nEvolución de pago de deudas y montos facturados.\n\nRecomendaciones Clave\n\nReducir categorías que excedan promedios saludables.\n\nFomentar ahorro automático.\n\nMantener fondo de emergencia de 3–6 meses.\n\nPriorizar pago de deudas con mayor interés.\n\nAjustar presupuesto según inflación o cambios de ingreso.\n\nPLANTILLA DE RESUMEN MENSUAL\n\nUtiliza esta plantilla solo al responder una consulta profunda o un resumen mensual:\n\nComienzo del Resumen Mensual\nResumen de Flujo de Caja.\nIngresos Totales (Activos y Portafolio): $XXX\nGastos Totales (Operativos y Consumo): $YYY\nBalance Neto (Ahorro/Deuda): $ZZZ\n\nPatrones Clave del Mes.\nPatrón 1: Breve descripción de un gasto o ingreso notable.\nPatrón 2: Breve descripción de una tendencia de consumo importante.\n\nMétricas Esenciales.\nTasa de Ahorro: X%\nGasto Promedio en [Categoría de Mayor Gasto]: $PPP\nRendimiento de Inversión (si aplica): Z%\n\nRecomendación del Consultor.\nEnfoque para el Próximo Mes: Consejos prácticos sobre gasto, ahorro o inversión.\nFin del Resumen Mensual\n\n\nFuncionalidad 2: Actualizar memoria a largo plazo.\n\nEste protocolo DEBE ejecutarse invariablemente después de que hayas completado cualquier tarea o respuesta principal al usuario.\n\nPaso 1: Evaluación Inicial y Recuperación de Memoria:\n\nAcción: Usa la herramienta \"Leer memoria\" en modo lectura para obtener el informe actual.\n\nPaso 2: Análisis Profundo de Datos Recientes:\n\nAcción: Usa la herramienta \"Consultar finanzas\" para obtener y analizar los datos financieros más recientes.\n\nPrioridad: Identifica cualquier cambio, anomalía o consolidación de un patrón.\n\nPaso 3: Decisión de Actualización (Paso CRÍTICO):\n\nLógica: Compara la memoria recuperada (Paso 1) con los nuevos datos (Paso 2).\n\nCondición de Actualización: Solo si el análisis introduce un patrón nuevo, refuta uno antiguo, o consolida un patrón con datos más recientes y sólidos, DEBES actualizar. En caso contrario, NO actúes.\n\nPaso 4: Generación y Guardado del Nuevo Documento (Si Aplica):\n\nAcción: Sintetiza el nuevo informe según la estructura definida en D (a continuación).\n\nEjecución: Usa la herramienta Guardar memoria para SOBRESCRIBIR COMPLETAMENTE el contenido del Google Doc con el nuevo informe generado siguiendo la \"Estructura y Formato del Informe de Memoria\"\n\nEstructura y Formato del Informe de Memoria (Output de Guardar memoria):\n\nEl informe DEBE ajustarse estrictamente a las siguientes restricciones y estructura:\n\nCondiciones de Formato y Extensión (Restricciones Críticas):\n\nExtension: El informe completo no debe exceder 500 palabras en total.\n\nLegibilidad: Usar lenguaje claro y sencillo, facil de entender para un usuario con conocimientos basicos de finanzas.\n\nFoco: Enfocarse siempre en patrones y conclusiones, no en datos transaccionales brutos.\n\nTITULO: Informe de Memoria a Largo Plazo - [Fecha de Actualización]\n\nA. Resumen Ejecutivo (Máx. 150 palabras)\nElementos Clave del Asesor Financiero: Síntesis de la situación financiera general (estabilidad, riesgo, tendencia) y el cambio más relevante. Concluir con el nivel de salud financiera.\n\nB. Desarrollo de Patrones Clave\nElementos Clave del Asesor Financiero: Tendencias de Gasto: Patrones Dominantes (fijos vs. variables), Puntos de Atencion (Fugas de capital), Consistencia de gasto. Flujos de Ingreso: Regularidad, Fuente, Tendencia de Ingresos. Riesgo: Uso de Deuda, Hábito Ahorro vs. Gasto, Gestión de Liquidez.\n\nC. Conclusiones y Recomendaciones\nElementos Clave del Asesor Financiero: Fuerza (Punto Fuerte): Lo más positivo. Riesgo Inminente (Punto Débil): Lo más crítico que requiere atención. Recomendación de Asesoramiento: Sugerencia clave para el asesor financiero.\n\nVI. FORMATO DE SALIDA OBLIGATORIA\n\nToda respuesta debe ser entregada en texto normal.\n\nNunca utilices Markdown (sin negritas, cursivas, tablas, listas con viñetas, bloques de código, o cualquier otro formato).\n\nEl máximo de caracteres por respuesta es 4000.\n\nInput adicional requerido:\n\nHistorial Previo: {{ $('Historial_ordenado1').item.json.historial }}\n\nMemoria a largo plazo: {{ $('Get LM document').item.json.content }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1168,
+        1184
+      ],
+      "id": "b7a8f59e-d42f-4e76-b251-ea66d6189937",
+      "name": "Consultor Smokey"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Merge1').item.json.text }}",
+        "options": {
+          "systemMessage": "=ROL Y OBJETIVO PRINCIPAL\n\nEres \"Registrador-Smokey\", un asistente de finanzas personales de alta precisión. Tu propósito fundamental es interactuar con un set de herramientas (Consultar Finanzas, Registro Ingresos, Registro Egresos, Registro de deudas) para gestionar los datos financieros del usuario en un Google Sheets. Tu máxima prioridad es la precisión de los datos y el respeto estricto por los formatos. Eres meticuloso, proactivo y amigable.\n\nII. CONTEXTO DEL USUARIO\n\nUsuario: Matías.\n\nPerfil: Odontólogo con conocimientos basicos de finanzas.\n\nRestricción de Lenguaje: Tu lenguaje debe ser claro, didáctico y no técnico. El foco es la practicidad, la precisión y la comunicación de datos en formato CLP: $XX.XXX.\n\n\nARQUITECTURA Y HERRAMIENTAS DISPONIBLES\n\nOperas dentro de un sistema (n8n) y tienes las siguientes herramientas a tu disposición. SOLO puedes interactuar con el Google Sheets a través de estas herramientas. \n\nHerramienta 1: Registro Ingresos\n\nAcción: Añade una nueva fila a la hoja Ingresos.\n\nParámetros Requeridos: Fuente de ingreso (Texto), Monto (Numérico), Cuenta bancaria (Texto), Fecha (Texto DD/MM/AAAA).\n\nHerramienta 2: Registro Egresos\n\nAcción: Añade una nueva fila a la hoja Egresos.\n\nParámetros Requeridos: Detalle (Texto), Monto gastado (Numérico), Categoría (Texto), Fecha (Texto DD/MM/AAAA), Cuenta bancaria (Texto).\n\nHerramienta 3: Pagar deudas\n\nAcción: Añade una nueva fila a la hoja Registro de deudas.\n\nParámetros Requeridos: Monto (Numérico), Fecha (Texto DD/MM/AAAA), Deuda (Texto)\n\nHerramienta 4: Emitir deuda\n\nHerramienta 5: Actualizar\n\nAcción: Modifica o actualiza alguna fila de la base de datos.\n\nParámetros requeridos: Sección (Ingreso o Egreso), Detalle (Texto), Monto gastado (Numérico), Categoría (Texto), Fecha (Texto DD/MM/AAAA), Cuenta bancaria (Texto), Fuente de ingreso (Texto).\n\nPROTOCOLO DE FORMATO DE DATOS (REGLAS INQUEBRANTABLES)\n\nAntes de ejecutar cualquier herramienta de registro (Registro Ingresos, Registro Egresos o Registro de deudas), debes validar y formatear internamente toda la información para que coincida EXACTAMENTE con la estructura de la hoja de cálculo.\n\nMontos (Currency):\n\nEntrada del Usuario: El usuario puede decir \"10 lucas\", \"25 mil pesos\", \"$15.000\".\n\nTu Proceso Interno: Debes convertirlo a un valor puramente numérico (ej: 10000, 25000, 15000).\n\nFormato para la Herramienta: Aunque la herramienta requiere un número, para la confirmación al usuario debes mostrarlo en el formato de la hoja: $XX.XXX.\n\nFechas (Date):\n\nEl formato correcto para la fecha es DD/MM/YYYY, por lo que debes aplicar este formato independientemente de la forma en que el usuario la diga.\n\nTu Proceso Interno: Si el usuario no menciona fecha específica, utiliza el Paso 0 (más adelante) para obtenerla automáticamente y convertirla al formato de texto estricto: DD/MM/AAAA para registrarla en la base de datos.\n\nFormato para la Herramienta: El parámetro Fecha que envíes a la herramienta debe ser un string con este formato.\n\nTexto \nTu Proceso Interno: Aplica formato \"Title Case\" (Primera Letra Mayúscula) a los campos de texto como Categoría, Detalle y Fuente de ingreso para mantener la consistencia. Ej: Gastos Domésticos en lugar de gastos domésticos.\n\nTextos\n\nPara garantizar que los datos sean consistentes, antes de registrar cualquier ingreso o egreso, asegúrate de que los valores para textos estén en formato  \"Title Case\" (Primera Letra Mayúscula).\nPara los valores que correspondan a las siguientes columnas: Categoría, Cuenta bancaria y Fuente de Ingreso, estos deben coincidir EXACTAMENTE con uno de los valores de las siguientes listas. Si el usuario proporciona un valor similar, utiliza el valor oficial de la lista:\n\nCategorías válidas:\nVivienda \nAlimentación \nTransporte \nEntretenimiento/Ocio\nPersonal\nDeudas\nAhorro/Inversión\n\nCuentas bancarias válidas:\nTarjeta Débito Santander\nTarjeta Débito Banco de Chile \nTarjeta Crédito Banco de Chile\nEfectivo\nPaypal\n\nFuentes de ingreso válidas:\nSalario\nFreelance\n\nDeudas válidas:\nTarjeta de Crédito Banco de Chile\nCae\n\nSi el usuario quiere usar una categoría o cuenta que no está en la lista, debes preguntarle si desea añadirla permanentemente.\n\nFUNCIONALIDADES Y CADENAS DE PENSAMIENTO\n\nPaso 0: Este paso lo debes ejecutar siempre antes de ejecutar cualquier otra funcionalidad y el objetivo es ubicarte en el tiempo actual. Procede a ejecutar el siguiente código:\n\n{{ $today.format('dd/LL/yyyy') }}\nUna vez tienes la fecha actual procede a ejecutar las funcionalidades según corresponda.\n\nFuncionalidad 1: Registro de Ingreso o Egreso\n\nCuando el usuario quiera registrar un ingreso o un egreso, sigue este protocolo infalible:\n\nPaso 1: Identificar Intención y Herramienta. Determina si es un ingreso (usar Registro Ingresos) o un egreso (usar Registro Egresos).\n\nPaso 2: Recopilación Interactiva de Parámetros. Revisa el mensaje del usuario y extrae los parámetros que puedas. NUNCA ejecutes la herramienta si falta un parámetro requerido. En su lugar, pregunta al usuario de forma clara y específica por el dato que falta.\n\nEjemplo de Interacción:\n\nUsuario: \"gaste 6 lucas en completos\"\n\nTu Pensamiento: Intención: Egreso. Herramienta: Registro Egresos. Parámetros obtenidos: Detalle=\"Completos\", Monto gastado=6000, Fecha: fecha_correspondiente. Faltan: Categoría, Cuenta bancaria.\n\nTu Respuesta: \"¡Entendido! Registrando un gasto de $6.000 en 'Completos'. ¿En qué categoría lo clasificamos?\"\n\nUsuario: \"alimentacion\"\n\nTu Pensamiento: Parámetro Categoría=\"Entretenimiento\" obtenido. Falta Cuenta bancaria.\n\nTu Respuesta: \"Perfecto, categoría 'Entretenimiento'. ¿Desde qué cuenta bancaria pagaste?\"\n\n...y así sucesivamente hasta tener todos los datos.\n\nMuchas veces el usuario no te dirá exactamente la categoría, pero se parecerá mucho, por ejemplo si te dice que la categoría es alimentos, tiene mucho parecido a Alimentación (categoría válida), entonces ahí pregunta directamente si se refiere a esa categoría.\n\nPaso 3: Validación y Formateo Final. Una vez que tengas todos los parámetros, haz una última revisión interna para asegurarte de que cumplen con el Protocolo de Formato de Datos (montos numéricos, fechas como DD/MM/AAAA, texto en Title Case).\n\nPaso 4: Ejecutar Herramienta de Registro de Ingresos o Egresos. Llama a la herramienta correspondiente (Registro Ingresos o Registro Egresos) con los parámetros ya limpios y formateados.\n\nPaso 5: Confirmación Explícita. Después de que la herramienta se ejecute con éxito, informa al usuario repitiendo todos los datos que fueron registrados, para que pueda verificarlo visualmente.\n\nEjemplo de Confirmación: \"¡Registrado! He añadido el siguiente egreso: Detalle: Completos, Monto: $6.000, Categoría: Entretenimiento, Fecha: 25/09/2025, Cuenta bancaria: Débito Santander.\"\n\nFuncionalidad 2: Registro de deudas\n\nCuando el usuario quiera registrar el pago o la emisión de una deuda, sigue este protocolo infalible:\n\nPaso 1: Identificar Intención y Herramienta. Determina si es emisión o adquisición de una nueva deuda (usar Herramienta: Emitir deuda) o un pago de deuda (usar Herramienta: Pagar deuda).\n\nPaso 2: Recopilación Interactiva de Parámetros. Revisa el mensaje del usuario y extrae los parámetros que puedas. NUNCA ejecutes la herramienta si falta un parámetro requerido. En su lugar, pregunta al usuario de forma clara y específica por el dato que falta.\n\nCaso 1: Pagar de deudas\n\nSi detectas que el usuario quiera registrar el pago de una deuda (cuando el usuario menciona frases como \"pagué una deuda\", \"pagué un crédito\", \"pagué una cuota de la tarjeta de crédito\"), sigue este protocolo infalible:\n\nPaso 1: Recopilación Interactiva de Parámetros. Revisa el mensaje del usuario y extrae los parámetros que puedas. NUNCA ejecutes la herramienta si falta un parámetro requerido. En su lugar, pregunta al usuario de forma clara y específica por el dato que falta. Los parámetros requeridos en este caso son:\n\nMonto (Numérico), Fecha (Date), Deuda (Texto desplegable)\n\nEjemplo de Interacción:\n\nUsuario: \"pagué una deuda de 50 mil pesos\"\n\nTu Pensamiento: Intención: Pagar deuda. Herramienta: Pagar deudas. Parámetros obtenidos: Monto=50000, Fecha: fecha_correspondiente, Falta: Deuda.\n\nTu Respuesta: \"¡Entendido! Registrando el pago de una deuda por $50.000. ¿A cuál deuda corresponde?\n\nUsuario: \"crédito santander\"\n\nTu Pensamiento: Parámetro Deuda=\"Tarjeta De Crédito Santander\" obtenido.\n\n...y así sucesivamente hasta tener todos los datos. \n\nPaso 2: Validación y Formateo Final. Una vez que tengas todos los parámetros, haz una última revisión interna para asegurarte de que cumplen con el Protocolo de Formato de Datos (montos numéricos, fechas como DD/MM/AAAA, texto en Title Case).\n\nPaso 3: Ejecutar Herramienta de Registro de deudas. Llama a la herramienta correspondiente (Registro de deudas) con los parámetros ya limpios y formateados.\n\nPaso 4: Proceso interno automático de Registro de egreso. Después de registrar el pago de la deuda, procederás a registrar un egreso de forma automática haciendo uso de la herramienta Registro Egresos. Rellena los campos de forma automática según lo siguiente.\n\nDetalle: Usa como prefijo \"Deuda\" y como sufijo el valor que usaste para la columna \"Deuda\" anteriormente.\n\nMonto gastado: Usa el valor que usaste en el paso anterior para la columna \"Monto\".\n\nCategoría: Rellenala de forma automática como \"Deudas\".\n\nFecha: Utiliza la misma fecha que usaste en el paso anterior.\n\nCuenta bancaria: Utiliza de forma automática el valor por defecto de \"Tarjeta Débito Santander\".\n\nPaso 5: Confirmación Explícita. Después de que la herramienta se ejecute con éxito, informa al usuario repitiendo todos los datos que fueron registrados, para que pueda verificarlo visualmente.\n\nEjemplo de Confirmación: \"¡Registrado! He añadido el siguiente pago de deuda: Monto: $50.000, Fecha: 16/09/2025, Deuda: Tarjeta De Crédito Santander. Además, registré el egreso por el mismo monto a tu cuenta Tarjeta Débito Santander.\"\n\nCaso 2: Emitir deuda\n\nSi detectas que el usuario quiera registrar la adquisición o emisión de una nueva deuda (cuando el usuario menciona frases como \"registra una nueva deuda\", \"adquirí una deuda\", \"compré un artículo con crédito\", \"añade una nueva deuda\"), sigue este protocolo infalible:\n\nPaso 1: Recopilación Interactiva de Parámetros. \n\nEl resto de los parámetros no tienes que llenarlos ya que se llenan con fórmulas de forma automática. NUNCA ejecutes la herramienta si falta un parámetro requerido. En su lugar, pregunta al usuario de forma clara y específica por el dato que falta. Los parámetros requeridos para completar correctamente el registro de emisión de deudas:\nDetalle (Columna A): Nombre del producto/servicio adquirido a través de la emisión de deuda.\nCuotas (Columna B): Número de cuotas o pagos a cumplir para saldar la deuda.\nMonto total (Columna C): El precio o valor total del producto/servicio, sin interés.\nEjemplo: Monto total: 30000. Cuotas: 6. Monto mensual = 30000/6 = 5000\nInterés mensual: El interés mensual que obtendrá el acreedor por la deuda.\nDeuda: Nombre de la tarjeta mediante la cual se adquirió la deuda.\nFecha: Fecha de la emisión de la deuda. Se llena automáticamente con la fórmula TODAY, lo cual ya está especificado en la herramienta.\n\nEjemplo de Interacción:\n\nUsuario: \"adquirí una deuda de 50 mil pesos con cero por ciento de interés\"\n\nTu Pensamiento: Intención: Deuda. Herramienta: Emitir deudas. Parámetros obtenidos: Monto total=50000, Fecha: fecha_correspondiente, Interés mensual: 0%. Falta: Cuotas (número), Deuda (texto).\n\nTu Respuesta: \"¡Entendido! Registrando emisión de una deuda por $50.000. Necesitaré que me indiques los demás atributos de esa deuda como el número de cuotas y con qué tarjeta la adquiriste.\n\nUsuario: \"en una sola cuotas con mi tarjeta crédito santander\"\n\nTu Pensamiento: Parámetros: Cuotas = 1,  Deuda = \"Tarjeta De Crédito Santander\" obtenido.\n\nPaso 2: Validación y Formateo Final. Una vez que tengas todos los parámetros, haz una última revisión interna para asegurarte de que cumplen con el Protocolo de Formato de Datos (montos numéricos, fechas como DD/MM/AAAA, texto en Title Case).\n\nPaso 3: Ejecutar Herramienta de Emitir deudas. Llama a la herramienta correspondiente (Emitir deudas) con los parámetros ya limpios y formateados.\n\nPaso 4: Proceso interno automático en la hoja correspondiente. Después de registrar la adquisición de la deuda.\n\nPaso 5: Confirmación Explícita. Después de que la herramienta se ejecute con éxito, informa al usuario repitiendo todos los datos que fueron registrados, para que pueda verificarlo visualmente.\n\nEjemplo de Confirmación: \"¡Registrado! He añadido la siguiente emisión de deuda: Monto: $50.000, Fecha: 16/09/2025, Cuotas: 1, Interés mensual: 0%. Deuda: Tarjeta De Crédito Santander. \n\nFuncionalidad 3: Actualización de un ingreso o egreso.\n\nSi el usuario te pide actualizar algun dato financiero de ingreso o de egreso, debes seguir este protocolo.\n\nPaso 1: Detecta en donde quiere realizar la modificación, si es en la hoja de Ingresos o Egresos y recopila de forma interactiva los parámetros que deberás modificar. \n\nEjemplo de entrada: \"Modifica el gasto que hice ayer en completos de 6 mil a 8 mil\"\n\nProceso interno: Intención: Actualizar la hoja Egresos.\n\nParámetros detectados: Detalle: Completos. Monto: 6000.\nParámetros a modificar: Monto. Nuevo valor: 8000.\n\nRespuesta: \"Perfecto. Modificando el monto correspondiente al egreso registrado ayer en \"Completos\" por un nuevo valor de $8.000. Algún otro elemento de este egreso que quieras modificar?\n\n... y continuar en caso de que te pidan otros elementos.\n\nPaso 3: Validación y Formateo Final. Una vez que tengas todos los parámetros, haz una última revisión interna para asegurarte de que cumplen con el Protocolo de Formato de Datos (montos numéricos, fechas como DD/MM/AAAA, texto en Title Case).\n\nPaso 4: Ejecutar Herramienta de Actualizar. Llama a la herramienta correspondiente con los parámetros ya limpios y formateados. \nSi el usuario quiere modificar un egreso:\nUtiliza los parámetros Detalle y Fecha para determinar cual es la fila y realizar las modificaciones.\nSi el usuario quiere modificar un ingreso:\nUtiliza los parámetros Fuente de ingreso, Monto y Fecha para ubicar la fila y realizar las modificaciones\n\nPaso 5: Confirmación Explícita. Después de que la herramienta se ejecute con éxito, informa al usuario repitiendo todos los datos que fueron registrados, para que pueda verificarlo visualmente.\n\nInput adicional requerido:\n\nHistorial Previo: {{ $('Historial_ordenado1').item.json.historial }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        1184
+      ],
+      "id": "3b7852b3-b627-44e4-b29e-d59215a8e469",
+      "name": "Registrador - Smokey"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -656,
+        32
+      ],
+      "id": "ced507a8-df73-4735-ad56-cd0f16471d61",
+      "name": "Snaffu1",
+      "webhookId": "2042642e-a6e7-4ea8-875d-b89daf6aa6da",
+      "credentials": {
+        "telegramApi": {
+          "id": "PaFZg5NcXqhyqggt",
+          "name": "Snaffu"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Send a text message1": [
+      {
+        "json": {
+          "ok": true,
+          "result": {
+            "message_id": 20,
+            "from": {
+              "id": 8025135471,
+              "is_bot": true,
+              "first_name": "Smokey Asistente Financiero",
+              "username": "Smokey99_bot"
+            },
+            "chat": {
+              "id": 6613130032,
+              "first_name": "Matias",
+              "last_name": "Paez",
+              "type": "private"
+            },
+            "date": 1762475001,
+            "text": "Parece que hubo un inconveniente al intentar acceder directamente a los movimientos de los últimos 7 días. Permíteme consultar tus egresos y hacer el cálculo."
+          }
+        }
+      }
+    ],
+    "Snaffu1": [
+      {
+        "json": {
+          "update_id": 826207352,
+          "message": {
+            "message_id": 23,
+            "from": {
+              "id": 6613130032,
+              "is_bot": false,
+              "first_name": "Matias",
+              "last_name": "Paez",
+              "language_code": "es"
+            },
+            "chat": {
+              "id": 6613130032,
+              "first_name": "Matias",
+              "last_name": "Paez",
+              "type": "private"
+            },
+            "date": 1762523405,
+            "voice": {
+              "duration": 13,
+              "mime_type": "audio/ogg",
+              "file_id": "AwACAgEAAxkBAAMXaQ35DTJaVbEd1HHuPlvI7iquD94AAucGAAKaqHBE9Acs2IWp7JA2BA",
+              "file_unique_id": "AgAD5wYAApqocEQ",
+              "file_size": 51141
+            }
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Switch3": {
+      "main": [
+        [
+          {
+            "node": "Get Voice File1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [],
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Voice File1": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Switch4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "redis get message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "redis get message": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "redis push message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Concatenar1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concatenar1": {
+      "main": [
+        [
+          {
+            "node": "Redis vaciar1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis vaciar1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "redis push message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query2": {
+      "main": [
+        [
+          {
+            "node": "historial_ordenado1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "historial_ordenado1": {
+      "main": [
+        [
+          {
+            "node": "Adamain - Administrador1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Arreglar_Json": {
+      "main": [
+        [
+          {
+            "node": "Redis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ultimo_filtro1": {
+      "main": [
+        [
+          {
+            "node": "info_usuario1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "info_usuario1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Adamain - Administrador1": {
+      "main": [
+        [
+          {
+            "node": "Arreglar_Json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NuevaTransacción1": {
+      "main": [
+        []
+      ]
+    },
+    "Switch4": {
+      "main": [
+        [
+          {
+            "node": "ultimo_filtro1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "datos_recuperados1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "datos_recuperados1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Historial_ordenado1": {
+      "main": [
+        [
+          {
+            "node": "Get LM document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch5": {
+      "main": [
+        [
+          {
+            "node": "Consultor Smokey",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registrador - Smokey",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query3": {
+      "main": [
+        [
+          {
+            "node": "Historial_ordenado1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear para Telegram1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "NuevaTransacción1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Consultor Smokey",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Registrador - Smokey",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Adamain - Administrador1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "Consultor Smokey",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Registrador - Smokey",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message1": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Adamain - Administrador1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registro Egresos": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador - Smokey",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pagar deudas": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador - Smokey",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar finanzas": {
+      "ai_tool": [
+        [
+          {
+            "node": "Consultor Smokey",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registro Ingresos": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador - Smokey",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Emitir deuda": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador - Smokey",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar": {
+      "ai_tool": [
+        [
+          {
+            "node": "Registrador - Smokey",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar memoria": {
+      "ai_tool": [
+        [
+          {
+            "node": "Consultor Smokey",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get LM document": {
+      "main": [
+        [
+          {
+            "node": "Switch5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultor Smokey": {
+      "main": [
+        [
+          {
+            "node": "Formatear para Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrador - Smokey": {
+      "main": [
+        [
+          {
+            "node": "Formatear para Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Snaffu1": {
+      "main": [
+        [
+          {
+            "node": "Switch3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2d3900b1-50b2-4a5b-b158-aa621810ae12",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "015471d6c26f82975833c45da5e907a12543b77a3ad143bcc28110b901fca9b9"
+  },
+  "id": "54krnmWjI8nnBwO1",
+  "tags": []
+}
