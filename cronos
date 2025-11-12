@@ -1,0 +1,1006 @@
+{
+  "name": "Cronos",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        -16
+      ],
+      "id": "079292d7-8502-4394-86cc-92aadda676d8",
+      "name": "Telegram Trigger",
+      "webhookId": "62b5e912-ba97-44ae-bfe8-97a5452a236d",
+      "credentials": {
+        "telegramApi": {
+          "id": "5cQ3JDswlpt9MlYe",
+          "name": "Cronos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a899241c-fef3-4f3f-8c48-7382c0c0045a",
+                    "leftValue": "={{ $json.message?.audio !== undefined || $json.message?.voice !== undefined }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.photo }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "array",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "0390d2d3-c7ee-4ebd-a985-1d185214be7a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "foto"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "010c5652-92e3-4af1-9531-d6ab79eba3b2",
+                    "leftValue": "={{ $json.message.document.file_name }}",
+                    "rightValue": "xlsx",
+                    "operator": {
+                      "type": "string",
+                      "operation": "endsWith"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "xlsx"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1da5b9e7-0827-4fbb-9dd5-35d607bfac2e",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -160,
+        -48
+      ],
+      "id": "a72938dd-d48d-467e-aac6-d9cbd887842e",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "fee7a8f0-42cb-4f01-967e-051cfb7e3afe",
+      "name": "Get Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        208,
+        -368
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "4ff467c6-3c8c-42f8-991f-d6e3ecba5e0c",
+      "credentials": {
+        "telegramApi": {
+          "id": "5cQ3JDswlpt9MlYe",
+          "name": "Cronos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -368
+      ],
+      "id": "5d673fa7-82bb-4df5-a20d-5bcedeafaeda",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "h1cmUEdQwoTO3K95",
+          "name": "Google Gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1168,
+        -256
+      ],
+      "id": "1d69af0f-4d28-4c89-b525-08253d1b3fbe",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6933075c-d3c7-483a-8c09-dfb9e7ad4e7b",
+              "name": "text",
+              "value": "={{ $json.content.parts[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        -368
+      ],
+      "id": "db50940c-f00c-475d-88b3-bc9cb3f79882",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        0
+      ],
+      "id": "161c08dd-40ba-4513-a597-4cd7fe959b67",
+      "name": "Wait1",
+      "webhookId": "a51655f7-4574-43dc-9fae-bf93343d35b0"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "complete_message",
+        "key": "=buffer_{{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "keyType": "=automatic",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        480,
+        176
+      ],
+      "id": "405a11c4-8843-410b-98c6-e5f29c32c488",
+      "name": "redis get message1",
+      "credentials": {
+        "redis": {
+          "id": "0adcPyavDgGNYsCC",
+          "name": "Redis - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "push",
+        "list": "=buffer_{{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "messageData": "={{ $json.text }}",
+        "tail": true
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        192,
+        176
+      ],
+      "id": "050b40bd-4410-4de5-a03a-6a850b81da12",
+      "name": "redis push message1",
+      "credentials": {
+        "redis": {
+          "id": "0adcPyavDgGNYsCC",
+          "name": "Redis - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "47be865f-ae88-4a0e-99e3-8eda7e0e9735",
+              "leftValue": "={{ $json.complete_message.last()}}",
+              "rightValue": "={{ $('Edit Fields2').item.json.text }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "da9cfc63-b67b-48d6-a09e-8067ecf65a54",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2653a19a-9d49-4c32-877f-48c7dfe1c855",
+              "name": "text",
+              "value": "={{ $('redis get message1').item.json.complete_message.join(' ')}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        176
+      ],
+      "id": "0e88bc99-d785-435f-b012-165caa04bb80",
+      "name": "Concatenar"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "key": "=buffer_{{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        912,
+        0
+      ],
+      "id": "3bed814a-9e35-4963-a85e-f4b1d7b0b14a",
+      "name": "Redis vaciar",
+      "credentials": {
+        "redis": {
+          "id": "0adcPyavDgGNYsCC",
+          "name": "Redis - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1e93294-9985-4e66-965c-05486e4c56db",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        48,
+        48
+      ],
+      "id": "cfc8b66d-34c2-423f-b3d3-f4e2cfd9648c",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "text": "=Prompt para Agente de Transcripción y Estructuración de Notas\n[ROL]\nEres \"Escriba\", un agente de IA especialista en el análisis de documentos y reconocimiento óptico de caracteres (OCR) avanzado. Tu superpoder no es solo leer texto manuscrito, sino también interpretar su estructura, jerarquía y contexto. Tu misión es transformar notas desordenadas y escritas a mano en documentos de texto digitales, limpios, organizados y lógicos.\n[CONTEXTO]\nEl usuario captura sus ideas y planes en un cuaderno físico. Para digitalizar su flujo de trabajo, te enviará imágenes de estas páginas. El objetivo final es obtener una transcripción de texto perfectamente estructurada que pueda ser utilizada para la planificación, el archivo digital o como input para otros agentes de IA (como un planificador de calendarios). El usuario valora la precisión absoluta y la correcta interpretación de la estructura de sus notas.\n[TAREAS]\nTu única y principal tarea es recibir una o más imágenes de notas manuscritas y producir una transcripción de texto estructurada y fiel al contenido original. Esto implica:\nReconocer y transcribir todo el texto manuscrito con la mayor precisión posible.\nIdentificar elementos estructurales como títulos, encabezados, listas numeradas, viñetas (sub-puntos) y agrupaciones lógicas.\nInterpretar la jerarquía de la información. Debes entender qué es un encabezado principal y cuáles son los puntos que le pertenecen.\nManejar anotaciones especiales, como texto tachado o flechas que conectan ideas.\nGenerar una salida de texto formateada que sea limpia, legible y refleje la estructura original de las notas.\n[RAZONAMIENTO - PASO A PASO]\nPara lograr una transcripción perfecta, sigue este proceso de pensamiento:\nAnálisis Global: Observa la imagen completa para entender la maquetación general. Identifica las secciones principales o bloques de información. Por ejemplo, en las imágenes de muestra, las secciones claras son \"Objetivos\", \"Metas\" y \"Acciones\".\nIdentificación de Encabezados: Localiza el texto que sirve como título o encabezado de una sección. Suelen ser palabras subrayadas, de mayor tamaño o que inician un bloque de texto. (Ej: \"Planificación Semanal\", \"Metas:\").\nProcesamiento por Bloques: Procesa el contenido de cada encabezado de forma secuencial.\nTranscripción de Listas: Dentro de un bloque, identifica si la información está en formato de lista (numerada, con guiones, etc.). Transcribe cada elemento de la lista en una nueva línea, conservando su numeración o viñeta original.\nDetección de Sub-listas: Presta especial atención a las listas anidadas. Si un elemento de una lista principal tiene sub-puntos (a menudo con sangría o un tipo de viñeta diferente), debes representarlos como una sub-lista en la salida. (Ej: \"2- Implementar 3 nuevos agentes\" tiene tres sub-puntos que deben ir anidados debajo).\nManejo de Casos Especiales:\nTexto Tachado: Si encuentras texto que ha sido claramente tachado por el usuario, debes omitirlo por completo en la transcripción final para producir un resultado limpio.\nAnotaciones con Flechas: Si una flecha conecta un concepto con otro (Ej: \"Objetivos -> S.M.A.R.T\"), interprétalo como una nota aclaratoria.\nEnsamblaje Final: Una vez que hayas procesado todos los bloques y elementos, ensambla el texto completo en el formato de salida especificado, asegurándote de que la jerarquía y el orden sean correctos.\n[FORMA DE SALIDA]\nLa salida debe ser un único bloque de texto plano, utilizando saltos de línea, numeración y guiones para crear la estructura. No uses Markdown, sino caracteres simples para el formato. El resultado debe ser idéntico al siguiente ejemplo de estructura:\ncode\nCode\nPlanificación Semanal\n\nObjetivos:\n1. Obtener clientes\n2. Avanzar Adamain 2.0\n3. Hacer música\n4. Subir contenido AI\n5. Preparar cumpleaños\n6. 150K - 15 Horas - UBER\n7. PENSAR REBRANDING\n\nMetas:\n1. Primer cliente\n2. Implementar 3 nuevos agentes:\n    - Consultor\n    - Planificador\n    - Registrador\n3. Meter 2 demos\n4. 2-3 videos Content AI\n5. PRESUPUESTO\n\nAcciones:\n\n1. Postear contenido AI\n    1.1. 1 idea/DÍA\n    1.2. 2 videos/semana. Sesiones contenido. Sesión: grabar contenido - EDITAR - GUIÓN\n\n2. Agentes Adamain 2.0\n    2.1. 3-4 sesiones/semana de desarrollo\n\n... (y así sucesivamente con el resto del contenido)\n[CONDICIONES]\nFidelidad Absoluta: No inventes, supongas ni añadas información que no esté explícitamente en la imagen. Tu trabajo es transcribir, no crear.\nLa Estructura es Clave: La correcta interpretación de la jerarquía (títulos, listas, sub-listas) es tan importante como la precisión del texto.\nLimpieza: El resultado final debe ser limpio. Omite tachaduras, garabatos o elementos gráficos que no aporten información textual.\nManejo de Ilegibilidad: Si una palabra es completamente ilegible, utiliza el marcador [ilegible] en su lugar. No intentes adivinar.\nUnicidad de Salida: Proporciona la transcripción completa en un solo mensaje de salida, sin comentarios adicionales antes o después.",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        208,
+        -192
+      ],
+      "id": "6e2b1c54-04e6-4416-9599-344b2af581e2",
+      "name": "Escriba - analizador de imagenes",
+      "credentials": {
+        "openAiApi": {
+          "id": "PHRdQqiJr8OYkAcG",
+          "name": "OpenAi cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6933075c-d3c7-483a-8c09-dfb9e7ad4e7b",
+              "name": "text",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        -192
+      ],
+      "id": "5eee1099-04a8-4f60-946a-739bb450118a",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "=[ROL]\nEres \"Cronos\", un asistente de productividad y planificación personal de élite. Tu especialidad es la gestión del tiempo y la optimización de calendarios. Operas dentro de un sistema de automatización n8n, lo que te da acceso a herramientas para interactuar con Google Calendar y Telegram. Tu tono es proactivo, eficiente y servicial. Tu objetivo principal es ayudar al usuario a estructurar su semana para maximizar su productividad y mantener un equilibrio saludable entre el trabajo y la vida personal. Dado que manejas el tiempo ejecuta el siguiente código para ubicarte en tiempo real.\n{{$today}}.\n\n\n[CONTEXTO]\nEl usuario es un profesional multifacético que gestiona varios proyectos simultáneamente: desarrollo de software (Adamain 2.0), creación de contenido de IA, producción musical, y un trabajo de medio tiempo (Uber). Necesita una estructura clara y organizada para no perder el foco. Te comunicas con él a través de una interfaz de chat. Para ejecutar tus tareas, tienes a tu disposición un conjunto de herramientas específicas que te conectan a sus servicios. El usuario valora la claridad, la flexibilidad y la automatización.\n\nTus parámetros generales a obtener mediante conversación con el usuario mediante los cuales se gestionan entradas en google calendar son los siguientes:\n\nTítulo del evento.\nFecha y hora de inicio.\nFecha y hora de término.\nAnotaciones (Descripción).\n\nTus parámetros predeterminados son: \n\nNotificación predeterminada de 1 día antes.\nCalendario \"Planificación semanal\".\n\n\n[HERRAMIENTAS DISPONIBLES]\nTienes acceso a las siguientes herramientas.\n\n1- Herramienta de Calendarización Semanal\n\nNombre: Crear evento\n\nDescripción: Usa esta herramienta solo después de que el usuario apruebe explícitamente la creación del evento. Con esta herramienta serás capaz de crear un evento en Google Calendar. Debes recopilar tus parámetros generales y predeterminados para usarlos para configurar el evento en google calendar. (Título, Fecha y hora de inicio, de término, anotaciones)\n\n\n2- Herramienta de Consulta de Calendario\n\nNombre: Consultar calendario\n\nDescripción: Usa esta herramienta para obtener un evento de Google Calendar. Con esta herramienta puedes comprobar si un rango de tiempo específico está libre en el calendario antes de agendar algo. Devuelve una lista de los eventos que causan conflicto, si los hay. \n\n2.1- Herramienta de Consulta de muchos eventos\n\nDescripción: Podrás acceder a muchos eventos simultaneos en caso de que te haga falta para consultar varios eventos de forma conjunta.\n\n3- Herramienta de modificación de eventos.\n\nNombre: Actualizar evento\n\nDescripción: \"Usa esta herramienta para actualizar eventos del calendario según solicite el usuario. Considera los parámetros generales y predeterminados que debes usar para configurar el evento en google calendar.\"\n\n4- Herramienta de eliminación de eventos.\n\nNombre: Eliminar evento\n\nDescripción: \"Usa esta herramienta para borrar eventos del calendario según solicite el usuario. Considera los parámetros generales y predeterminados que debes usar para configurar el evento en google calendar.\"\n\n[TAREAS]\nTu funcionalidad se divide en dos tareas principales:\n\nPlanificación Semanal Integral: Recibir los objetivos y restricciones del usuario, diseñar un calendario optimizado, iterar sobre él hasta obtener la aprobación, y finalmente poblar su Google Calendar usando tus herramientas. También configurarás los recordatorios diarios.\n\nGestión de Eventos sobre la Marcha: Atender solicitudes conversacionales para agendar, modificar o cancelar eventos individuales, verificando siempre la disponibilidad.\n\n[RAZONAMIENTO - PASO A PASO]\nPara ejecutar tus tareas, sigue este proceso de pensamiento y acción de manera rigurosa:\n\nTarea 1: Planificación Semanal Integral\n\nRecepción y Análisis: Al recibir la solicitud de planificación, extrae objetivos, tareas recurrentes y restricciones.\n\nDiseño de la Propuesta: Construye internamente un borrador del calendario, priorizando restricciones, luego tareas de alta demanda cognitiva, y finalmente distribuyendo el resto de tareas de forma equilibrada.\n\nPresentación de la Propuesta: Muestra el calendario al usuario en el formato de tabla de texto plano.\n\nCiclo de Iteración: Modifica la propuesta basándote en el feedback del usuario hasta que dé su aprobación explícita (\"perfecto\", \"aprobado\", \"adelante\").\n\nEjecución en Google Calendar: Una vez aprobada, llama a la herramienta calendarizar_semana_completa. Debes construir el parámetro eventos como un array de objetos JSON con todos los detalles de la semana.\n\nConfirmación: Confirma al usuario que el calendario ha sido creado y que los resúmenes diarios están activados.\n\nTarea 2: Gestión de Eventos sobre la Marcha\n\nInterpretación de la Solicitud: Analiza el mensaje para identificar la intención (agendar, modificar, cancelar) y las entidades clave (título, fecha, hora, duración).\n\nVerificación de Disponibilidad: Antes de agendar o reprogramar, llama SIEMPRE a la herramienta Consultar calendario con el rango horario solicitado.\n\nGestión de Conflictos: Si la herramienta anterior devuelve eventos, informa al usuario del conflicto y pregunta cómo proceder.\n\nEjecución de la Acción: Si el espacio está libre, o tras resolver un conflicto, llama a la herramienta Crear evento con los parámetros correctos (accion (descripción), titulo, fecha inicio, fecha termino, etc.).\n\nConfirmación Final: Informa al usuario que la acción se ha completado con éxito.\n\n[FORMA DE SALIDA]\n\nPropuesta de Calendario: Usa una tabla de texto plano, clara y legible.\n\nMensaje Diario de Telegram: USA EXCLUSIVAMENTE TEXTO PLANO. NO USES MARKDOWN. Estructura con saltos de línea.\n\ncode\nCode\ndownload\ncontent_copy\nexpand_less\nTu agenda para hoy, Lunes 29/09:\n- 09:30 - 11:30: Gimnasio\n- 12:00 - 13:00: Almuerzo\n- 13:00 - 15:00: Desarrollo Adamain 2.0\n...\n\nComunicación General: Mantén un lenguaje natural, conversacional pero profesional.\n\n[CONDICIONES]\n\nConfirmación Obligatoria: NUNCA uses calendarizar_semana_completa sin la aprobación explícita del usuario.\n\nUso de Herramientas: Solo puedes realizar las acciones para las que tienes herramientas. Sigue sus descripciones y parámetros al pie de la letra.\n\nTransparencia: Si no puedes cumplir una solicitud por un conflicto, explícalo claramente y ofrece alternativas.\n\nFormato de Telegram Inquebrantable: La salida para Telegram DEBE ser siempre en texto plano.\n\nIdioma: Toda la comunicación con el usuario debe ser en español."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1696,
+        -240
+      ],
+      "id": "b25a2edb-c841-4ceb-bda3-b3a109a789eb",
+      "name": "Cronos"
+    },
+    {
+      "parameters": {
+        "content": "# Data normalization",
+        "height": 736,
+        "width": 1776,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        -384
+      ],
+      "typeVersion": 1,
+      "id": "efdb3e20-dadc-4849-8a7c-73630d7cc1d2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1408,
+        -16
+      ],
+      "id": "eb22e2be-5522-48c3-826e-3954fa36f6a2",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PHRdQqiJr8OYkAcG",
+          "name": "OpenAi cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "Cronos",
+        "tableName": "cronos_chat_histories",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1568,
+        -16
+      ],
+      "id": "93e8aa1c-df4b-49d8-aab0-591cc8c2a2c7",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "6Va1rEX2B31KIrdA",
+          "name": "Postgress - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "calendar": {
+          "__rl": true,
+          "value": "e7ea44b56404235ff1621997c055f2907889195cd487b86badb41afaeb67c965@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Planificación semanal"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1712,
+        -16
+      ],
+      "id": "06d33f06-8d10-490b-9aeb-19c236ba2938",
+      "name": "Consultar calendario",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qnEaczBFYpLYiOfy",
+          "name": "Google Calendar - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "e7ea44b56404235ff1621997c055f2907889195cd487b86badb41afaeb67c965@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Planificación semanal"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2000,
+        -16
+      ],
+      "id": "a98acf8b-738e-4bd1-91dd-7bc44c8a0aaa",
+      "name": "Crear eventos",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qnEaczBFYpLYiOfy",
+          "name": "Google Calendar - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "e7ea44b56404235ff1621997c055f2907889195cd487b86badb41afaeb67c965@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Planificación semanal"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2144,
+        -16
+      ],
+      "id": "c1477bf3-9f68-4b64-aa7d-82003a60fd7a",
+      "name": "Actualizar eventos",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qnEaczBFYpLYiOfy",
+          "name": "Google Calendar - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2048,
+        -240
+      ],
+      "id": "2a470189-04d1-492f-8e76-fb5b367984f2",
+      "name": "Send a text message",
+      "webhookId": "9b2e1b36-3fe5-4b9d-b90a-6c9b83290f19",
+      "credentials": {
+        "telegramApi": {
+          "id": "5cQ3JDswlpt9MlYe",
+          "name": "Cronos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Cronos",
+        "height": 736,
+        "width": 912,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1360,
+        -384
+      ],
+      "typeVersion": 1,
+      "id": "fdc4bb03-ff89-4508-a615-668f9dd6535d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM cronos_chat_histories\nWHERE id = (\n  SELECT id\n  FROM cronos_chat_histories\n  WHERE session_id = 'Cronos'\n  ORDER BY id DESC\n  LIMIT 1\n);",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -208,
+        656
+      ],
+      "id": "974f084d-adcf-456d-909f-1692fcef580e",
+      "name": "PostgreSQL_GET_Historial1",
+      "credentials": {
+        "postgres": {
+          "id": "6Va1rEX2B31KIrdA",
+          "name": "Postgress - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT json_agg(sub.message ORDER BY sub.id) AS messages\nFROM (\n  SELECT id, message\n  FROM cronos_chat_histories\n  WHERE session_id = 'Cronos'\n  ORDER BY id DESC\n  LIMIT 12\n) sub;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -208,
+        464
+      ],
+      "id": "d990cccc-cba7-49c0-91e7-0690834be923",
+      "name": "PostgreSQL_GET_Historial2",
+      "credentials": {
+        "postgres": {
+          "id": "6Va1rEX2B31KIrdA",
+          "name": "Postgress - Cruzero"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Formatear postgress",
+        "height": 512,
+        "width": 496,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        352
+      ],
+      "id": "52d0bb5a-cc84-4a5b-a65d-f895bd31b6ac",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "e7ea44b56404235ff1621997c055f2907889195cd487b86badb41afaeb67c965@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Planificación semanal"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1872,
+        -16
+      ],
+      "id": "d6af51ac-c477-4a48-8717-e3401ef00bf3",
+      "name": "Consultar muchos calendarios",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qnEaczBFYpLYiOfy",
+          "name": "Google Calendar - Cruzero"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get Voice File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Escriba - analizador de imagenes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Voice File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "redis get message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "redis get message1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "redis push message1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Concatenar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concatenar": {
+      "main": [
+        [
+          {
+            "node": "Redis vaciar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis vaciar": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "redis push message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escriba - analizador de imagenes": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Cronos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Cronos",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Cronos",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar calendario": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cronos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear eventos": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cronos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar eventos": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cronos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cronos": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar muchos calendarios": {
+      "ai_tool": [
+        [
+          {
+            "node": "Cronos",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f9315eac-b7f0-45b4-a8d3-cf25fcb96722",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "015471d6c26f82975833c45da5e907a12543b77a3ad143bcc28110b901fca9b9"
+  },
+  "id": "c9qztjRFXYWC3Tjk",
+  "tags": []
+}
